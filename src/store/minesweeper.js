@@ -28,6 +28,11 @@ export function gameOver() {
     }
 }
 
+export function reset() {
+    return {
+        type: RESET
+    }
+}
 // ------------------------------------
 // Specialized Action Creator
 // ------------------------------------
@@ -129,7 +134,7 @@ const ACTION_HANDLERS = {
     return { ...state, game_over: true }
   },
   [RESET] : (state, action) => {
-    return initialState
+    return { ...initialState, board: makeBoard() }
   }
 }
 

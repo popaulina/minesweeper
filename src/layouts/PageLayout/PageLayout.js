@@ -4,8 +4,8 @@ import PropTypes from 'prop-types'
 import './PageLayout.scss'
 
 export const PageLayout = ({ children }) => (
-  <div className='container text-center'>
-    <h1>Minesweeper</h1>
+  <div>
+    <h1 className='text-center'>Minesweeper</h1>
     <div className='page-layout__viewport'>
       {children}
     </div>
