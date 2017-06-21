@@ -20,31 +20,42 @@ export function update (board) {
 export const openPosition = (element) => {
     return function(dispatch, getState) {
         var piece = { ...element };
-        var game = getState().minesweeper;
         // if flagged, return
         if (piece.is_flag || piece.is_open) return;
         // if mine, game over
         if (piece.has_mine) gameOver(); //todo
-        // else calculate surrounding mines
-        piece.surrounding = calculateSurroundingMines(piece, game.board, game.width, game.height);
-        piece.is_open = true;
+        // else process all changes that need to be made
+        var board = getState().minesweeper.board;
+        var width = getState().minesweeper.width;
+        var height = getState().minesweeper.height;
+        var new_board = updatePiece(piece, board, width, height);
 
-        var board = game.board;
-        board[piece.x][piece.y] = piece;
-        dispatch(update(board));
-        // if empty, open surrounding pieces TODO
-        
+        dispatch(update(board));        
     }
     
 }
 
 export const setFlag = (element) => {
     return function(dispatch, getState) {
+        if (element.is_open) return;
         var piece = { ...element, is_flag: !element.is_flag };
         var board = getState().minesweeper.board;
         board[piece.x][piece.y] = piece;
         dispatch(update(board));
     }
+}
+
+const updatePiece = (element, board, width, height) => {
+    if (element.is_open) return board;
+    var piece = { ...element };
+    piece.surrounding = calculateSurroundingMines(piece, board, width, height);
+    piece.is_open = true;
+
+    var new_board = { ...board };
+    new_board[piece.x][piece.y] = piece;
+
+    if (piece.surrounding === 0) return openSurroundingMines(piece, new_board, width, height);
+    return new_board;
 }
 
 const calculateSurroundingMines = (element, board, width, height) => {
@@ -61,6 +72,21 @@ const calculateSurroundingMines = (element, board, width, height) => {
     } 
 
     return mines;
+}
+
+const openSurroundingMines = (element, board, width, height) => {
+    var new_board = { ...board }; 
+    var startx = element.x === 0 ? 0 : element.x - 1;
+    var endx = element.x === width - 1 ? element.x : element.x + 1;
+    var starty = element.y === 0 ? 0 : element.y - 1;
+    var endy = element.y === height - 1 ? element.y : element.y + 1;
+
+    for (var i = startx; i < endx + 1; i++) {
+        for (var j = starty; j < endy + 1; j++) {
+            new_board = updatePiece(board[i][j], board, width, height);
+        }
+    } 
+    return new_board;
 }
 
 // ------------------------------------

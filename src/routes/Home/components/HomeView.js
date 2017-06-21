@@ -18,8 +18,11 @@ const Board = ({ board, open, flag }) => (
 
 const BoardPiece = ({ piece, open, flag }) => {
 	var styles = { marginLeft: (piece.x * 40), marginTop: (piece.y * 40) }
+	var classes = "piece ";
+	classes += piece.is_open ? "opened " : "unopened ";
+	classes = piece.is_flag ? "piece flag " : classes;
 	return (
-		<Button className={piece.is_open ? "piece opened" : "piece unopened"} 
+		<Button className={classes} 
 			style={styles} 
 			onClick={() => open(piece)} 
 			onContextMenu={(e) => { e.preventDefault(); flag(piece); }} 
