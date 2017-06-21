@@ -1,5 +1,16 @@
-.duck {
-  display: block;
-  width: 120px;
-  margin: 1.5rem auto;
+.unopened {
+	background-color: grey;
+}
+
+.opened {
+	background-color: white;
+}
+
+.piece {
+	width: 20px;
+	height: 20px;
+	border: 1px black;
+	text-align: center;
+	font-size: 16px;
+	padding-top: 1px;
 }

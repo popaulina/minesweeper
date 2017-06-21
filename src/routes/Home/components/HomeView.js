@@ -1,12 +1,15 @@
 import React from 'react'
-import DuckImage from '../assets/Duck.jpg'
 import './HomeView.scss'
+import { connect } from 'react-redux'
 
-export const HomeView = () => (
+export const HomeView = (props) => {
+debugger;
+return (
   <div>
-    <h4>Welcome!</h4>
-    <img alt='This is a duck, because Redux!' className='duck' src={DuckImage} />
-  </div>
-)
 
-export default HomeView
+  </div>
+)}
+
+const mapStateToProps = (state) => ({ state })
+
+export default connect(mapStateToProps)(HomeView)
