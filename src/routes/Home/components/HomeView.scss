@@ -1,5 +1,5 @@
 .unopened {
-	background-color: grey;
+	background-color: #999;
 }
 
 .opened {
@@ -7,10 +7,11 @@
 }
 
 .piece {
-	width: 20px;
-	height: 20px;
-	border: 1px black;
+	width: 40px;
+	height: 40px;
+	border: 1px solid black;
 	text-align: center;
 	font-size: 16px;
 	padding-top: 1px;
+	position: fixed;
 }
