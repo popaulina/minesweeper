@@ -11,9 +11,9 @@ export const HomeView = (props) => (
 );
 
 const Board = ({ board, open, flag, game_over, remaining, reset }) => (
-	<div>
+	<div className="text-center">
 		<Button onClick={reset}>Reset</Button>
-		<div className="text-center">Remaining: {remaining}</div>
+		<div>Remaining: {remaining}</div>
 		{ board.map(x => x.map(y => <BoardPiece piece={y} open={open} flag={flag} game_over={game_over} remaining={remaining} />)) }
 	</div>
 )
