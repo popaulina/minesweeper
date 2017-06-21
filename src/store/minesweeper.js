@@ -2,16 +2,30 @@
 // Constants
 // ------------------------------------
 export const UPDATE_BOARD = 'UPDATE_BOARD'
-
+export const DECREMENT_REMAINING = 'DECREMENT_REMAINING'
+export const GAME_OVER = 'GAME_OVER'
+export const RESET = 'RESET'
 // ------------------------------------
 // Actions
 // ------------------------------------
 
 export function update (board) {
-  return {
-    type    : UPDATE_BOARD,
-    payload : board
-  }
+    return {
+        type : UPDATE_BOARD,
+        payload : board
+    }
+}
+
+export function decrementRemaining() {
+    return {
+        type : DECREMENT_REMAINING
+    }
+}
+
+export function gameOver() {
+    return {
+        type : GAME_OVER
+    }
 }
 
 // ------------------------------------
@@ -20,21 +34,22 @@ export function update (board) {
 export const openPosition = (element) => {
     return function(dispatch, getState) {
         var piece = { ...element };
-        // if flagged, return
+        // if flagged or open, do nothing
         if (piece.is_flag || piece.is_open) return;
         // if mine, game over
-        if (piece.has_mine) gameOver(); //todo
+        if (piece.has_mine) dispatch(gameOver()); 
         // else process all changes that need to be made
         var board = getState().minesweeper.board;
         var width = getState().minesweeper.width;
         var height = getState().minesweeper.height;
-        var new_board = updatePiece(piece, board, width, height);
+        var new_board = updatePiece(piece, board, width, height, dispatch);
 
         dispatch(update(board));        
     }
     
 }
 
+//Set or unset a flag on a piece
 export const setFlag = (element) => {
     return function(dispatch, getState) {
         if (element.is_open) return;
@@ -45,19 +60,23 @@ export const setFlag = (element) => {
     }
 }
 
-const updatePiece = (element, board, width, height) => {
+//Update a single piece - will find surrounding mines and open all adjacent if no mines found
+const updatePiece = (element, board, width, height, dispatch) => {
+    // do not change board if piece already open
     if (element.is_open) return board;
     var piece = { ...element };
     piece.surrounding = calculateSurroundingMines(piece, board, width, height);
     piece.is_open = true;
+    dispatch(decrementRemaining());
 
     var new_board = { ...board };
     new_board[piece.x][piece.y] = piece;
 
-    if (piece.surrounding === 0) return openSurroundingMines(piece, new_board, width, height);
+    if (piece.surrounding === 0) return openSurroundingMines(piece, new_board, width, height, dispatch);
     return new_board;
 }
 
+//Find number of mines surrounding a piece
 const calculateSurroundingMines = (element, board, width, height) => {
     var startx = element.x === 0 ? 0 : element.x - 1;
     var endx = element.x === width - 1 ? element.x : element.x + 1;
@@ -74,7 +93,8 @@ const calculateSurroundingMines = (element, board, width, height) => {
     return mines;
 }
 
-const openSurroundingMines = (element, board, width, height) => {
+//Opens all adjacent mines when empty space found
+const openSurroundingMines = (element, board, width, height, dispatch) => {
     var new_board = { ...board }; 
     var startx = element.x === 0 ? 0 : element.x - 1;
     var endx = element.x === width - 1 ? element.x : element.x + 1;
@@ -83,11 +103,17 @@ const openSurroundingMines = (element, board, width, height) => {
 
     for (var i = startx; i < endx + 1; i++) {
         for (var j = starty; j < endy + 1; j++) {
-            new_board = updatePiece(board[i][j], board, width, height);
+            new_board = updatePiece(board[i][j], board, width, height, dispatch);
         }
     } 
     return new_board;
 }
+
+//initialization
+const MINES = 10;
+const BOARD_WIDTH = 9;
+const BOARD_HEIGHT = 9;
+const initialState = { board: makeBoard(), mines: MINES, width: BOARD_WIDTH, height: BOARD_HEIGHT, remaining: BOARD_HEIGHT * BOARD_WIDTH - MINES, game_over: false }
 
 // ------------------------------------
 // Action Handlers
@@ -95,19 +121,21 @@ const openSurroundingMines = (element, board, width, height) => {
 const ACTION_HANDLERS = {
   [UPDATE_BOARD] : (state, action) => {
   	return {...state, board: action.payload }
+  },
+  [DECREMENT_REMAINING] : (state, action) => {
+    return { ...state, remaining: state.remaining - 1 }
+  },
+  [GAME_OVER] : (state, action) => {
+    return { ...state, game_over: true }
+  },
+  [RESET] : (state, action) => {
+    return initialState
   }
 }
 
 // ------------------------------------
 // Reducer
 // ------------------------------------
-
-//initialization
-const MINES = 10;
-const BOARD_WIDTH = 9;
-const BOARD_HEIGHT = 9;
-const initialState = { board: makeBoard(), mines: MINES, width: BOARD_WIDTH, height: BOARD_HEIGHT, firstClick: true }
-
 export default function minesweeperReducer (state = initialState, action) {
   const handler = ACTION_HANDLERS[action.type]
 
@@ -138,6 +166,7 @@ function makeBoard() {
         }
 
         //else, continue placing mines until none remain
+        //theoretically this could loop forever, but if Math.random is really random that won't happen
     }
 
     return board;
