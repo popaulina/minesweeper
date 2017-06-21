@@ -19,23 +19,26 @@ export function update (board) {
 // ------------------------------------
 export const openPosition = (element) => {
     return function(dispatch, getState) {
-        debugger;
+        var piece = { ...element };
+        var game = getState().minesweeper;
         // if flagged, return
-        if (element.is_flag) return;
+        if (piece.is_flag || piece.is_open) return;
         // if mine, game over
-        if (element.has_mine) gameOver();
+        if (piece.has_mine) gameOver(); //todo
         // else calculate surrounding mines
-        var board = getState().minesweeper.board;
-        var mines = 0;
-        var start = element.x === 0 ? 0 : element.x - 1;
-            // if empty, open surrounding pieces
+        piece.surrounding = calculateSurroundingMines(piece, game.board, game.width, game.height);
+        piece.is_open = true;
+
+        var board = game.board;
+        board[piece.x][piece.y] = piece;
+        dispatch(update(board));
+        // if empty, open surrounding pieces TODO
         
     }
     
 }
 
 export const setFlag = (element) => {
-    debugger; 
     return function(dispatch, getState) {
         var piece = { ...element, is_flag: !element.is_flag };
         var board = getState().minesweeper.board;
@@ -44,6 +47,21 @@ export const setFlag = (element) => {
     }
 }
 
+const calculateSurroundingMines = (element, board, width, height) => {
+    var startx = element.x === 0 ? 0 : element.x - 1;
+    var endx = element.x === width - 1 ? element.x : element.x + 1;
+    var starty = element.y === 0 ? 0 : element.y - 1;
+    var endy = element.y === height - 1 ? element.y : element.y + 1;
+
+    var mines = 0;
+    for (var i = startx; i < endx + 1; i++) {
+        for (var j = starty; j < endy + 1; j++) {
+            if (board[i][j].has_mine) mines++;
+        }
+    } 
+
+    return mines;
+}
 
 // ------------------------------------
 // Action Handlers

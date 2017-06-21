@@ -4,13 +4,11 @@ import { connect } from 'react-redux'
 import { openPosition, setFlag } from '../../../store/minesweeper'
 import { Button } from 'react-bootstrap'
 
-export const HomeView = (props) => {
-	debugger;
-	return(
+export const HomeView = (props) => (
   <div>
   	<Board board={props.state.minesweeper.board} open={props.open} flag={props.flag} />
   </div>
-)}
+);
 
 const Board = ({ board, open, flag }) => (
 	<div>
@@ -21,7 +19,11 @@ const Board = ({ board, open, flag }) => (
 const BoardPiece = ({ piece, open, flag }) => {
 	var styles = { marginLeft: (piece.x * 40), marginTop: (piece.y * 40) }
 	return (
-		<Button className={piece.open ? "piece opened" : "piece unopened"} style={styles} onClick={() => open(piece)} onContextMenu={(e) => { e.preventDefault(); flag(piece); }} > 
+		<Button className={piece.is_open ? "piece opened" : "piece unopened"} 
+			style={styles} 
+			onClick={() => open(piece)} 
+			onContextMenu={(e) => { e.preventDefault(); flag(piece); }} 
+		> 
 			{ piece.surrounding ? piece.surrounding : "" }
 		</Button>
 	)
