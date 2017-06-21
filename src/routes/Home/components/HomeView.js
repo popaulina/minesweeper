@@ -1,26 +1,37 @@
 import React from 'react'
 import './HomeView.scss'
 import { connect } from 'react-redux'
+import { openPosition, setFlag } from '../../../store/minesweeper'
+import { Button } from 'react-bootstrap'
 
-export const HomeView = (props) => (
+export const HomeView = (props) => {
+	debugger;
+	return(
   <div>
-  	<Board board={props.state.minesweeper.board} />
+  	<Board board={props.state.minesweeper.board} open={props.open} flag={props.flag} />
   </div>
-)
+)}
 
-const Board = ({ board }) => (
+const Board = ({ board, open, flag }) => (
 	<div>
-		{ board.map(x => x.map(y => <BoardPiece piece={y} />)) }
+		{ board.map(x => x.map(y => <BoardPiece piece={y} open={open} flag={flag} />)) }
 	</div>
 )
 
-const BoardPiece = ({ piece }) => {
+const BoardPiece = ({ piece, open, flag }) => {
 	var styles = { marginLeft: (piece.x * 40), marginTop: (piece.y * 40) }
 	return (
-		<div className={piece.open ? "piece opened" : "piece unopened"} style={styles}> </div>
+		<Button className={piece.open ? "piece opened" : "piece unopened"} style={styles} onClick={() => open(piece)} onContextMenu={(e) => { e.preventDefault(); flag(piece); }} > 
+			{ piece.surrounding ? piece.surrounding : "" }
+		</Button>
 	)
 }
 
 const mapStateToProps = (state) => ({ state })
 
-export default connect(mapStateToProps)(HomeView)
+const mapDispatchToProps = (dispatch) => ({
+	open: (piece) => dispatch(openPosition(piece)),
+	flag: (piece) => dispatch(setFlag(piece))
+})
+
+export default connect(mapStateToProps, mapDispatchToProps)(HomeView)

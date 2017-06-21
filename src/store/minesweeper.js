@@ -1,7 +1,7 @@
 // ------------------------------------
 // Constants
 // ------------------------------------
-export const OPEN_POSITION = 'OPEN_POSITION'
+export const UPDATE_BOARD = 'UPDATE_BOARD'
 
 // ------------------------------------
 // Actions
@@ -9,7 +9,7 @@ export const OPEN_POSITION = 'OPEN_POSITION'
 
 export function update (board) {
   return {
-    type    : OPEN_POSITION,
+    type    : UPDATE_BOARD,
     payload : board
   }
 }
@@ -17,8 +17,31 @@ export function update (board) {
 // ------------------------------------
 // Specialized Action Creator
 // ------------------------------------
-export const openPosition = (board, element) => {
-  //todo
+export const openPosition = (element) => {
+    return function(dispatch, getState) {
+        debugger;
+        // if flagged, return
+        if (element.is_flag) return;
+        // if mine, game over
+        if (element.has_mine) gameOver();
+        // else calculate surrounding mines
+        var board = getState().minesweeper.board;
+        var mines = 0;
+        var start = element.x === 0 ? 0 : element.x - 1;
+            // if empty, open surrounding pieces
+        
+    }
+    
+}
+
+export const setFlag = (element) => {
+    debugger; 
+    return function(dispatch, getState) {
+        var piece = { ...element, is_flag: !element.is_flag };
+        var board = getState().minesweeper.board;
+        board[piece.x][piece.y] = piece;
+        dispatch(update(board));
+    }
 }
 
 
@@ -26,7 +49,7 @@ export const openPosition = (board, element) => {
 // Action Handlers
 // ------------------------------------
 const ACTION_HANDLERS = {
-  [OPEN_POSITION]    : (state, action) => {
+  [UPDATE_BOARD] : (state, action) => {
   	return {...state, board: action.payload }
   }
 }
